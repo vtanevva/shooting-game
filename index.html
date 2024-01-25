@@ -132,7 +132,8 @@
         }
 
         function handleCollisionWithPlayer() {
-            resetPlayerPosition();
+            alert('Game Over! You were hit by an enemy.');
+            location.reload(); // Reloads the game
         }
 
         function resetPlayerPosition() {
