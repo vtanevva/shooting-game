@@ -48,39 +48,29 @@
         <div class="player" id="player"></div>
     </div>
     <script>
-
         const gameContainer = document.getElementById('game-container');
         const player = document.getElementById('player');
         const playerSpeed = 5;
-        const maxLives = 3; // sets the maximum number of lives
 
         let enemies = [];
         let bullets = [];
-        let score = 0;
-        let lives = maxLives; // initializes the number of lives
 
-        // moves the player
-    function movePlayer() {
-    document.addEventListener('keydown', (event) => {
-        // checks if the left arrow key is pressed and the player is not at the left edge
-        if (event.key === 'ArrowLeft' && player.offsetLeft > 0) {
-            // moves the player element to the left by subtracting playerSpeed pixels from its left position
-            player.style.left = player.offsetLeft - playerSpeed + 'px';
+        function movePlayer() {
+            document.addEventListener('keydown', (event) => {
+                if (event.key === 'ArrowLeft' && player.offsetLeft > 0) {
+                    player.style.left = player.offsetLeft - playerSpeed + 'px';
+                }
+
+                if (event.key === 'ArrowRight' && player.offsetLeft + player.offsetWidth < gameContainer.offsetWidth) {
+                    player.style.left = player.offsetLeft + playerSpeed + 'px';
+                }
+
+                if (event.key === ' ') {
+                    shoot();
+                }
+            });
         }
 
-        if (event.key === 'ArrowRight' && player.offsetLeft + player.offsetWidth < gameContainer.offsetWidth) {
-            player.style.left = player.offsetLeft + playerSpeed + 'px';
-        }
-
-        // checks if the spacebar key is pressed
-        if (event.key === ' ') {
-            // calling the shoot() function to make the player shoot
-            shoot();
-        }
-    });
-}
-
-        // creates an enemy
         function createEnemy() {
             const enemy = document.createElement('div');
             enemy.className = 'enemy';
@@ -89,19 +79,16 @@
             enemies.push(enemy);
         }
 
-        // moves enemies
         function moveEnemies() {
             for (let i = 0; i < enemies.length; i++) {
                 const enemy = enemies[i];
                 enemy.style.top = enemy.offsetTop + 2 + 'px';
 
-                // checks for collision with player
                 if (isCollision(player, enemy)) {
                     handleCollisionWithPlayer();
                     return;
                 }
 
-                // removes enemies that go out of the screen
                 if (enemy.offsetTop > gameContainer.offsetHeight) {
                     gameContainer.removeChild(enemy);
                     enemies.splice(i, 1);
@@ -110,7 +97,6 @@
             }
         }
 
-        // creates bullets
         function shoot() {
             const bullet = document.createElement('div');
             bullet.className = 'bullet';
@@ -119,13 +105,11 @@
             gameContainer.appendChild(bullet);
             bullets.push(bullet);
 
-            // moves bullets towards enemies
             function moveBullet() {
                 for (let i = 0; i < bullets.length; i++) {
                     const bullet = bullets[i];
                     bullet.style.bottom = parseFloat(bullet.style.bottom) + 2 + 'px';
 
-                    // checks for collisions with enemies
                     for (let j = 0; j < enemies.length; j++) {
                         const enemy = enemies[j];
                         if (isCollision(bullet, enemy)) {
@@ -134,7 +118,6 @@
                         }
                     }
 
-                    // removes bullets that go out of the screen
                     if (parseFloat(bullet.style.bottom) > gameContainer.offsetHeight) {
                         gameContainer.removeChild(bullet);
                         bullets.splice(i, 1);
@@ -149,110 +132,45 @@
         }
 
         function handleCollisionWithPlayer() {
-            // reduces a life
-            lives--;
-
-            if (lives === 0) {
-                endGame();
-            } else {
-                resetPlayerPosition();
-            }
+            resetPlayerPosition();
         }
 
-        // resets player position
         function resetPlayerPosition() {
             player.style.left = '50%';
             player.style.transform = 'translateX(-50%)';
         }
 
-        // handles collision with enemy
         function handleCollisionWithEnemy(bullet, enemy) {
             gameContainer.removeChild(bullet);
             gameContainer.removeChild(enemy);
             bullets.splice(bullets.indexOf(bullet), 1);
             enemies.splice(enemies.indexOf(enemy), 1);
-            score += 10;
         }
 
-        // checks for collision between two elements - this function checks if two HTML elements are colliding or overlapping
-    function isCollision(element1, element2) {
-    const rect1 = element1.getBoundingClientRect();
-    const rect2 = element2.getBoundingClientRect();
+        function isCollision(element1, element2) {
+            const rect1 = element1.getBoundingClientRect();
+            const rect2 = element2.getBoundingClientRect();
 
-    // checks if the left edge of element1 is to the left of the right edge of element2
-    // also, check if the right edge of element1 is to the right of the left edge of element2
-    // this checks for horizontal overlap
-    const horizontalOverlap = rect1.left < rect2.right && rect1.right > rect2.left;
-        // this checks for vertical overlap
+            const horizontalOverlap = rect1.left < rect2.right && rect1.right > rect2.left;
+            const verticalOverlap = rect1.top < rect2.bottom && rect1.bottom > rect2.top;
 
-    const verticalOverlap = rect1.top < rect2.bottom && rect1.bottom > rect2.top;
-
-    // if both horizontal and vertical overlaps exist, the elements are colliding
-    if (horizontalOverlap && verticalOverlap) {
-        return true; // colliding
-    } else {
-        return false; // not colliding
-    }
-}
-
-
-        // updates the score display
-        function updateScore() {
-            const scoreDisplay = document.getElementById('score-display');
-            if (scoreDisplay) {
-                scoreDisplay.textContent = 'Score: ' + score;
+            if (horizontalOverlap && verticalOverlap) {
+                return true;
+            } else {
+                return false;
             }
         }
 
-        // updates the lives display
-        function updateLives() {
-            const livesDisplay = document.getElementById('lives-display');
-            if (livesDisplay) {
-                livesDisplay.textContent = 'Lives: ' + lives;
-            }
-        }
-
-        // ends the game
-        function endGame() {
-            clearInterval(gameInterval);
-            alert('Game Over! Your Score: ' + score);
-            location.reload(); // reloads the game
-        }
-
-        // starts the game
         movePlayer();
         const gameInterval = setInterval(() => {
             createEnemy();
         }, 1000);
 
-        // mives enemies every frame
         function gameLoop() {
             moveEnemies();
-            updateScore();
-            updateLives();
 
             requestAnimationFrame(gameLoop);
         }
-
-        // creating and displaying the score element
-        const scoreDisplay = document.createElement('div');
-        scoreDisplay.id = 'score-display';
-        scoreDisplay.style.color = 'white';
-        scoreDisplay.style.position = 'absolute';
-        scoreDisplay.style.top = '10px';
-        scoreDisplay.style.left = '10px';
-        scoreDisplay.textContent = 'Score: 0';
-        gameContainer.appendChild(scoreDisplay);
-
-        // creating and displaying the lives element
-        const livesDisplay = document.createElement('div');
-        livesDisplay.id = 'lives-display';
-        livesDisplay.style.color = 'white';
-        livesDisplay.style.position = 'absolute';
-        livesDisplay.style.top = '10px';
-        livesDisplay.style.right = '10px';
-        livesDisplay.textContent = 'Lives: ' + lives;
-        gameContainer.appendChild(livesDisplay);
 
         requestAnimationFrame(gameLoop);
     </script>
