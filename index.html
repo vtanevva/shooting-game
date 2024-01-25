@@ -52,7 +52,7 @@
         const gameContainer = document.getElementById('game-container');
         const player = document.getElementById('player');
         const playerSpeed = 5;
-        const maxLives = 1; // sets the maximum number of lives
+        const maxLives = 3; // sets the maximum number of lives
 
         let enemies = [];
         let bullets = [];
@@ -244,7 +244,14 @@
         gameContainer.appendChild(scoreDisplay);
 
         // creating and displaying the lives element
-        
+        const livesDisplay = document.createElement('div');
+        livesDisplay.id = 'lives-display';
+        livesDisplay.style.color = 'white';
+        livesDisplay.style.position = 'absolute';
+        livesDisplay.style.top = '10px';
+        livesDisplay.style.right = '10px';
+        livesDisplay.textContent = 'Lives: ' + lives;
+        gameContainer.appendChild(livesDisplay);
 
         requestAnimationFrame(gameLoop);
     </script>
